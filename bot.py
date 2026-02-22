@@ -185,8 +185,17 @@ async def on_ready():
     print(f"✅ {bot.user} is online!")
     try:
         synced = await bot.tree.sync()
-        print(f"✅ Synced {len(synced)} global slash commands (may take up to 1 hour to appear).")
-        print("💡 Tip: Type !sync in your server to force them to appear immediately!")
+        print(f"✅ Synced {len(synced)} global slash commands.")
+        
+        # Force sync to all guilds the bot is currently in (overrides the 1-hour wait)
+        for guild in bot.guilds:
+            try:
+                bot.tree.copy_global_to(guild=guild)
+                await bot.tree.sync(guild=guild)
+                print(f"✅ Force-synced commands to {guild.name}")
+            except Exception as e:
+                print(f"⚠️ Could not force-sync to {guild.name}: {e}")
+                
     except Exception as e:
         print(f"❌ Failed to sync commands: {e}")
 
